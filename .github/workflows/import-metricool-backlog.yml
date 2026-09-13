@@ -1,0 +1,88 @@
+name: Import Metricool backlog media
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/import-metricool-backlog.yml"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: after-office-media-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download TikTok backlog media
+        shell: bash
+        run: |
+          set -euo pipefail
+          get() {
+            local url="$1"
+            local dest="$2"
+            mkdir -p "$(dirname "$dest")"
+            curl --fail --location --retry 3 --retry-delay 2 "$url" --output "$dest"
+            test -s "$dest"
+            file "$dest"
+          }
+
+          # 2026-09-09 — Tempo makin lambat = otot makin cepat tumbuh?
+          get "https://static.metricool.com/planner/202609/6793442-file-12063742634121819642.jpeg" "tiktok/2026-09-09-tempo/01.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-14278827271643683391.jpeg" "tiktok/2026-09-09-tempo/02.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-4966347779450720148.jpeg" "tiktok/2026-09-09-tempo/03.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-2534413627229454416.jpeg" "tiktok/2026-09-09-tempo/04.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-2523071771568111154.jpeg" "tiktok/2026-09-09-tempo/05.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-17608112712299262602.jpeg" "tiktok/2026-09-09-tempo/06.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-8531330575258160877.jpeg" "tiktok/2026-09-09-tempo/07.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-770907560325466278.jpeg" "tiktok/2026-09-09-tempo/08.jpg"
+
+          # 2026-09-10 — Kopi strong itu sebenarnya apa?
+          get "https://static.metricool.com/planner/202609/6793442-file-13393838361106290007.jpeg" "tiktok/2026-09-10-kopi-strong/01.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-12883752608806319167.jpeg" "tiktok/2026-09-10-kopi-strong/02.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-15315732470892009492.jpeg" "tiktok/2026-09-10-kopi-strong/03.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-10240974069852267915.jpeg" "tiktok/2026-09-10-kopi-strong/04.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-9407637298983137592.jpeg" "tiktok/2026-09-10-kopi-strong/05.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-7575996546785897284.jpeg" "tiktok/2026-09-10-kopi-strong/06.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-5934072099670447807.jpeg" "tiktok/2026-09-10-kopi-strong/07.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-3488430798695453146.jpeg" "tiktok/2026-09-10-kopi-strong/08.jpg"
+
+          # 2026-09-11 — Mind-muscle connection wajib buat hypertrophy?
+          get "https://static.metricool.com/planner/202609/6793442-file-5335828003638008473.jpeg" "tiktok/2026-09-11-mmc/01.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-18321278990226469618.jpeg" "tiktok/2026-09-11-mmc/02.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-3002528038770210964.jpeg" "tiktok/2026-09-11-mmc/03.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-15049332796600898393.jpeg" "tiktok/2026-09-11-mmc/04.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-15416904822201110039.jpeg" "tiktok/2026-09-11-mmc/05.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-9841815192342034220.jpeg" "tiktok/2026-09-11-mmc/06.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-5549028002435498037.jpeg" "tiktok/2026-09-11-mmc/07.jpg"
+          get "https://static.metricool.com/planner/202609/6793442-file-6442814675690902084.jpeg" "tiktok/2026-09-11-mmc/08.jpg"
+
+          # 2026-09-12 — Progress kecil tetap progress: microloading
+          get "https://static.metricool.com/planner/202609/6793442-file-2632883091239153540.png" "tiktok/2026-09-12-microloading/01.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-17295451973381576857.png" "tiktok/2026-09-12-microloading/02.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-4817277464901910544.png" "tiktok/2026-09-12-microloading/03.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-6846909153035095122.png" "tiktok/2026-09-12-microloading/04.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-5076421719459701338.png" "tiktok/2026-09-12-microloading/05.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-1184455811342682649.png" "tiktok/2026-09-12-microloading/06.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-5958419401050959099.png" "tiktok/2026-09-12-microloading/07.png"
+          get "https://static.metricool.com/planner/202609/6793442-file-11802062759096543682.png" "tiktok/2026-09-12-microloading/08.png"
+
+      - name: Commit imported media
+        shell: bash
+        run: |
+          git config user.name "after-office-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tiktok/
+          if git diff --cached --quiet; then
+            echo "No media changes to commit."
+          else
+            git commit -m "Import TikTok backlog media"
+            git push
+          fi
