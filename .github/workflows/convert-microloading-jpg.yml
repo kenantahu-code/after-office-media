@@ -1,0 +1,49 @@
+name: Convert microloading PNGs to JPEG
+
+on:
+  push:
+    paths:
+      - ".github/workflows/convert-microloading-jpg.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - name: Convert PNG to high-quality JPEG
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          folder = Path('tiktok/2026-09-12-microloading')
+          for src in sorted(folder.glob('*.png')):
+              dst = src.with_suffix('.jpg')
+              with Image.open(src) as im:
+                  if im.mode in ('RGBA','LA'):
+                      bg = Image.new('RGB', im.size, 'white')
+                      alpha = im.getchannel('A')
+                      bg.paste(im.convert('RGB'), mask=alpha)
+                      im = bg
+                  else:
+                      im = im.convert('RGB')
+                  im.save(dst, 'JPEG', quality=97, subsampling=0, optimize=True)
+                  print(dst, im.size)
+          PY
+      - name: Commit JPEG derivatives
+        run: |
+          git config user.name "after-office-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tiktok/2026-09-12-microloading/*.jpg
+          if git diff --cached --quiet; then
+            echo "No JPEG changes."
+          else
+            git commit -m "Add JPEG derivatives for microloading recovery"
+            git push
+          fi
