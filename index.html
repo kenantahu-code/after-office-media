@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>After Office Publisher</title>
+  <meta name="description" content="After Office Publisher helps creators and small content teams prepare and publish approved photo content to TikTok using official platform APIs.">
+  <style>
+    :root{--bg:#f5efe7;--ink:#211914;--muted:#6d625a;--card:#fffaf5;--line:#d9cec3;--accent:#5f3f2f}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif;line-height:1.55}
+    .wrap{max-width:1040px;margin:auto;padding:24px}.nav{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:10px 0 28px}
+    .brand{font-weight:800;letter-spacing:-.02em}.nav a,.footer a{color:var(--ink);text-decoration:none;margin-left:18px}
+    .hero{padding:54px 0 34px;display:grid;grid-template-columns:1.2fr .8fr;gap:42px;align-items:center}
+    h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.05em;margin:0 0 24px} h2{font-size:30px;letter-spacing:-.03em;margin:0 0 12px}
+    p{margin:0 0 16px}.lead{font-size:20px;color:var(--muted);max-width:720px}.cta{display:inline-block;background:var(--ink);color:white!important;padding:14px 20px;border-radius:12px;text-decoration:none;font-weight:700;margin-top:8px}
+    .panel,.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:24px}.panel ol{padding-left:22px;margin:10px 0 0}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:22px 0 50px}.card h3{margin:0 0 8px}.section{padding:34px 0}.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.step{border-top:2px solid var(--ink);padding-top:14px}
+    .note{background:#ece2d7;border-radius:16px;padding:18px;margin-top:18px;color:#4d433d}.footer{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);padding:28px 0 12px;margin-top:30px;color:var(--muted)}
+    @media(max-width:760px){.hero,.grid,.steps{grid-template-columns:1fr}.hero{padding-top:24px}.nav{align-items:flex-start}.nav div:last-child{display:flex;flex-direction:column;gap:8px}.nav a{margin:0}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <div class="brand">After Office Publisher</div>
+    <div><a href="#how">How it works</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <div>
+        <h1>Publish approved creator content with fewer manual steps.</h1>
+        <p class="lead">After Office Publisher is a web publishing workflow for creators and small content teams. It uses official TikTok authorization and Content Posting APIs to connect a creator account, prepare photo posts, choose available privacy settings, and send approved content for publishing.</p>
+        <a class="cta" href="tiktok-auth.html">Connect TikTok</a>
+      </div>
+      <div class="panel">
+        <strong>Publishing flow</strong>
+        <ol>
+          <li>Creator connects their own TikTok account.</li>
+          <li>Current creator permissions are checked before publishing.</li>
+          <li>Creator reviews caption, privacy, comments, disclosures, and media.</li>
+          <li>Explicitly approved content is sent through TikTok's official API.</li>
+          <li>Publish status is checked until TikTok returns a final result.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <h2>Built around creator control</h2>
+      <p class="lead">The workflow is designed so publishing settings come from the connected creator's latest TikTok permissions and are reviewed before a post is sent.</p>
+      <div class="grid">
+        <div class="card"><h3>Account authorization</h3><p>Creators authorize access through TikTok Login Kit. Passwords are never requested or stored by After Office Publisher.</p></div>
+        <div class="card"><h3>Publishing controls</h3><p>Posts can include title, description, privacy selection, comment controls, commercial-content disclosure settings, and automatic recommended music for supported photo posts.</p></div>
+        <div class="card"><h3>Status & safety checks</h3><p>The service validates media URLs, checks creator information before publishing, prevents accidental duplicate submissions, and records the final publish status.</p></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>How a post moves through the service</h2>
+      <div class="steps">
+        <div class="step"><strong>1. Connect</strong><p>Authorize the TikTok account and required scopes.</p></div>
+        <div class="step"><strong>2. Prepare</strong><p>Add approved photo media and publishing metadata.</p></div>
+        <div class="step"><strong>3. Review</strong><p>Confirm creator, privacy, comments, disclosures, and consent.</p></div>
+        <div class="step"><strong>4. Publish</strong><p>Send to TikTok and wait for the confirmed API result.</p></div>
+      </div>
+      <div class="note"><strong>Important:</strong> After Office Publisher only publishes content when an authorized creator or operator has approved the post. Availability of public visibility depends on the permissions and audit status provided by TikTok.</div>
+    </section>
+
+    <section class="section">
+      <h2>About After Office Publisher</h2>
+      <p>After Office Publisher was created by After Office ID to make multi-step social publishing more reliable. The service is intended for creators and small content teams who need a controlled workflow for approved photo content, publishing metadata, platform authorization, and final-status verification.</p>
+      <p>Questions about the service can be directed to the official After Office ID account <strong>@after.officeid</strong>.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>© 2026 After Office Publisher</div>
+    <div><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a><a href="tiktok-auth.html">Connect TikTok</a></div>
+  </footer>
+</div>
+</body>
+</html>
