@@ -1,0 +1,50 @@
+name: Normalize microloading images for TikTok API
+
+on:
+  push:
+    paths:
+      - ".github/workflows/normalize-microloading-tiktok.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  normalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pillow
+      - name: Normalize to 864x1080 JPEG
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageOps
+          srcdir = Path('tiktok/2026-09-12-microloading')
+          outdir = srcdir / 'api'
+          outdir.mkdir(exist_ok=True)
+          for i in range(1, 9):
+              src = srcdir / f'{i:02d}.jpg'
+              dst = outdir / f'{i:02d}.jpg'
+              with Image.open(src) as im:
+                  im = im.convert('RGB')
+                  print('source', src, im.size)
+                  # AO carousel is 4:5; normalize to the TikTok-tested 864x1080 canvas.
+                  if im.size != (864, 1080):
+                      im = ImageOps.fit(im, (864, 1080), method=Image.Resampling.LANCZOS, centering=(0.5, 0.5))
+                  im.save(dst, 'JPEG', quality=95, subsampling=0, optimize=True)
+                  print('output', dst, im.size, dst.stat().st_size)
+          PY
+      - name: Commit normalized assets
+        run: |
+          git config user.name "after-office-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tiktok/2026-09-12-microloading/api/*.jpg
+          if git diff --cached --quiet; then
+            echo "No normalized asset changes."
+          else
+            git commit -m "Add TikTok-normalized microloading assets"
+            git push
+          fi
