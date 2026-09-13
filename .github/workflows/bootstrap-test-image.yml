@@ -1,0 +1,26 @@
+name: Bootstrap test image
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/bootstrap-test-image.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download test image
+        run: |
+          curl -L "https://placehold.co/1080x1350.jpg" -o test.jpg
+      - name: Commit test image
+        run: |
+          git config user.name "after-office-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add test.jpg
+          git diff --cached --quiet || git commit -m "Add public test image"
+          git push
