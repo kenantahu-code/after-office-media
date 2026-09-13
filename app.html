@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>After Office Publisher — TikTok</title>
+  <style>
+    :root{--bg:#f5efe7;--ink:#211914;--muted:#6d625a;--card:#fffaf5;--line:#d9cec3;--accent:#5f3f2f;--ok:#2f6d48;--bad:#9d3737}
+    *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Arial,sans-serif;line-height:1.5}
+    .wrap{max-width:1080px;margin:auto;padding:24px}.nav{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:24px}.nav a{color:var(--ink);text-decoration:none}.brand{font-weight:800}
+    .hero{display:flex;justify-content:space-between;gap:24px;align-items:flex-end;margin:20px 0 28px}.hero h1{font-size:clamp(36px,6vw,64px);line-height:1;margin:0 0 12px;letter-spacing:-.045em}.lead{color:var(--muted);max-width:700px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px}.card h2{margin:0 0 12px;font-size:22px}
+    label{display:block;font-weight:700;margin:16px 0 7px}input,textarea,select{width:100%;font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:white;color:var(--ink)}textarea{min-height:112px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.checks{display:grid;gap:10px;margin-top:14px}.check{display:flex;gap:10px;align-items:flex-start}.check input{width:auto;margin-top:4px}
+    button,.btn{display:inline-block;border:0;border-radius:11px;background:var(--ink);color:white;padding:12px 16px;font-weight:750;text-decoration:none;cursor:pointer}button.secondary,.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}button:disabled{opacity:.45;cursor:not-allowed}
+    .account{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:14px;border:1px solid var(--line);border-radius:12px;background:white}.badge{font-size:12px;border-radius:999px;padding:5px 9px;background:#e5efe8;color:var(--ok);font-weight:700}
+    .preview{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.preview img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:10px;border:1px solid var(--line);background:#eee}
+    .status{padding:14px;border-radius:12px;background:white;border:1px solid var(--line);min-height:54px;white-space:pre-wrap}.status.ok{border-color:#afd0b9;background:#f2faf4}.status.bad{border-color:#e1b1b1;background:#fff6f6}
+    .tiny{font-size:13px;color:var(--muted)}.footer{margin-top:28px;padding-top:22px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:var(--ink)}
+    @media(max-width:800px){.grid{grid-template-columns:1fr}.row{grid-template-columns:1fr}.preview{grid-template-columns:repeat(2,1fr)}.hero{display:block}.hero .btn{margin-top:12px}}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="nav">
+    <a class="brand" href="index.html">After Office Publisher</a>
+    <div><a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <h1>Review before you publish.</h1>
+      <p class="lead">Connect your TikTok account, review creator permissions and publishing settings, then explicitly approve the post before it is sent through TikTok's official Content Posting API.</p>
+    </div>
+    <a class="btn" id="connectTop" href="/api/tiktok/start">Connect TikTok</a>
+  </section>
+
+  <div class="grid">
+    <section class="card">
+      <h2>1. Connected creator</h2>
+      <div id="accountArea" class="account">
+        <div><strong>Not connected</strong><div class="tiny">Authorize TikTok to continue.</div></div>
+        <a class="btn" href="/api/tiktok/start">Connect</a>
+      </div>
+      <p class="tiny" style="margin-top:10px">After Office Publisher never asks for your TikTok password. Authorization happens on TikTok.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Publishing controls</h2>
+      <div class="row">
+        <div>
+          <label for="privacy">Privacy</label>
+          <select id="privacy"><option value="SELF_ONLY">Only you</option></select>
+        </div>
+        <div>
+          <label for="cover">Cover image</label>
+          <select id="cover"></select>
+        </div>
+      </div>
+      <div class="checks">
+        <label class="check"><input id="allowComments" type="checkbox" checked><span>Allow comments on this post</span></label>
+        <label class="check"><input id="autoMusic" type="checkbox" checked><span>Automatically add recommended music when TikTok supports it</span></label>
+        <label class="check"><input id="brandContent" type="checkbox"><span>This post contains branded content</span></label>
+        <label class="check"><input id="brandOrganic" type="checkbox"><span>This post promotes my own brand, product, or service</span></label>
+        <label class="check"><input id="aigc" type="checkbox"><span>This content is AI-generated or significantly AI-edited</span></label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Content preview</h2>
+      <label for="title">Title</label>
+      <input id="title" maxlength="90" value="Kopi strong itu sebenarnya apa?">
+      <label for="description">Description</label>
+      <textarea id="description" maxlength="4000">Kopi strong = lebih pekat, bukan otomatis dark roast atau finer grind. Cek ratio kopi:air. #AfterOfficeID #CoffeeLab #CoffeeStrength</textarea>
+      <label for="media">Photo URLs — one per line</label>
+      <textarea id="media"></textarea>
+      <div class="preview" id="preview"></div>
+      <p class="tiny">For the current demo, media is served from the TikTok-verified After Office media domain.</p>
+    </section>
+
+    <section class="card">
+      <h2>4. Final approval</h2>
+      <p>Confirm the account, media, caption, privacy, interaction controls, music setting, and disclosures above before publishing.</p>
+      <label class="check" style="margin:18px 0"><input id="consent" type="checkbox"><span><strong>I reviewed this post and explicitly approve publishing it to the connected TikTok account.</strong></span></label>
+      <button id="publish" disabled>Publish to TikTok</button>
+      <button id="logout" class="secondary" type="button">Disconnect</button>
+      <div id="status" class="status" style="margin-top:16px">Waiting for creator connection and explicit approval.</div>
+    </section>
+  </div>
+
+  <footer class="footer">
+    <div>© 2026 After Office Publisher</div>
+    <div><a href="privacy.html">Privacy Policy</a> · <a href="terms.html">Terms of Service</a></div>
+  </footer>
+</div>
+
+<script>
+const sampleMedia = Array.from({length:8}, (_,i)=>`https://kenantahu-code.github.io/after-office-media/tiktok/2026-09-10-kopi-strong/${String(i+1).padStart(2,'0')}.jpg`);
+const mediaEl = document.getElementById('media');
+const previewEl = document.getElementById('preview');
+const coverEl = document.getElementById('cover');
+const statusEl = document.getElementById('status');
+const publishBtn = document.getElementById('publish');
+const consentEl = document.getElementById('consent');
+let creator = null;
+
+mediaEl.value = sampleMedia.join('\n');
+
+function mediaUrls(){ return mediaEl.value.split('\n').map(s=>s.trim()).filter(Boolean); }
+function renderMedia(){
+  const urls = mediaUrls();
+  previewEl.innerHTML = urls.map((u,i)=>`<img src="${u.replace(/"/g,'&quot;')}" alt="Slide ${i+1}">`).join('');
+  coverEl.innerHTML = urls.map((_,i)=>`<option value="${i}">Slide ${i+1}</option>`).join('');
+}
+function setStatus(text, kind=''){
+  statusEl.textContent = text;
+  statusEl.className = `status ${kind}`.trim();
+}
+function updatePublishState(){ publishBtn.disabled = !(creator && consentEl.checked); }
+mediaEl.addEventListener('input', renderMedia);
+consentEl.addEventListener('change', updatePublishState);
+renderMedia();
+
+async function loadCreator(){
+  try{
+    const r = await fetch('/api/tiktok/creator', {cache:'no-store'});
+    if(r.status===401){ creator=null; updatePublishState(); return; }
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Could not load creator');
+    creator = data;
+    const username = data.creator_username ? '@'+data.creator_username : 'Connected TikTok account';
+    document.getElementById('accountArea').innerHTML = `<div><strong>${data.creator_nickname || username}</strong><div class="tiny">${username} · ${data.environment} mode</div></div><span class="badge">Connected</span>`;
+    document.getElementById('connectTop').textContent = 'TikTok connected';
+    document.getElementById('connectTop').classList.add('secondary');
+    const privacy = document.getElementById('privacy');
+    privacy.innerHTML = (data.privacy_level_options || ['SELF_ONLY']).map(p=>`<option value="${p}">${p==='PUBLIC_TO_EVERYONE'?'Everyone':p==='MUTUAL_FOLLOW_FRIENDS'?'Friends':'Only you'}</option>`).join('');
+    const allow = document.getElementById('allowComments');
+    if(data.comment_disabled){ allow.checked=false; allow.disabled=true; }
+    setStatus('Creator permissions loaded. Review the post and check the approval box.');
+    updatePublishState();
+  }catch(e){ setStatus(e.message,'bad'); }
+}
+
+async function pollStatus(publishId){
+  for(let i=0;i<30;i++){
+    await new Promise(r=>setTimeout(r,3000));
+    const r = await fetch(`/api/tiktok/status?publish_id=${encodeURIComponent(publishId)}`, {cache:'no-store'});
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Status check failed');
+    const s = data.data && data.data.status;
+    setStatus(`TikTok accepted the post.\nPublish ID: ${publishId}\nStatus: ${s || 'PROCESSING'}`);
+    if(s==='PUBLISH_COMPLETE'){ setStatus(`PUBLISH_COMPLETE\nPublish ID: ${publishId}`,'ok'); return; }
+    if(s==='FAILED') throw new Error(`TikTok publish failed: ${(data.data && data.data.fail_reason) || 'unknown reason'}`);
+  }
+  setStatus(`Post is still processing.\nPublish ID: ${publishId}`);
+}
+
+document.getElementById('publish').addEventListener('click', async()=>{
+  publishBtn.disabled = true;
+  setStatus('Submitting the approved post to TikTok…');
+  try{
+    const payload = {
+      title: document.getElementById('title').value.trim(),
+      description: document.getElementById('description').value.trim(),
+      media_urls: mediaUrls(),
+      privacy_level: document.getElementById('privacy').value,
+      photo_cover_index: Number(document.getElementById('cover').value || 0),
+      disable_comment: !document.getElementById('allowComments').checked,
+      auto_add_music: document.getElementById('autoMusic').checked,
+      brand_content_toggle: document.getElementById('brandContent').checked,
+      brand_organic_toggle: document.getElementById('brandOrganic').checked,
+      is_aigc: document.getElementById('aigc').checked,
+      consent: consentEl.checked,
+    };
+    const r = await fetch('/api/tiktok/publish', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data = await r.json();
+    if(!r.ok) throw new Error(data.error || 'Publish request failed');
+    setStatus(`TikTok accepted the post.\nPublish ID: ${data.publish_id}\nChecking final status…`);
+    await pollStatus(data.publish_id);
+  }catch(e){ setStatus(e.message,'bad'); }
+  finally{ updatePublishState(); }
+});
+
+document.getElementById('logout').addEventListener('click',()=>{ location.href='/api/tiktok/logout'; });
+const params = new URLSearchParams(location.search);
+if(params.get('oauth_error')) setStatus(`TikTok authorization error: ${params.get('oauth_error')}`,'bad');
+loadCreator();
+</script>
+</body>
+</html>
