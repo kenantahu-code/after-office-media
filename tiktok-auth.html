@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>After Office TikTok Authorization</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#171717}
+    input,button{font-size:16px;padding:12px;border-radius:8px;border:1px solid #ccc}
+    input{width:100%;box-sizing:border-box;margin:8px 0 16px}
+    button{background:#111;color:#fff;border:0;cursor:pointer}
+    .note{background:#f5f5f5;padding:14px;border-radius:8px;margin:18px 0}
+    code{word-break:break-all}
+  </style>
+</head>
+<body>
+  <h1>Authorize After Office with TikTok</h1>
+  <p>This helper only builds the official TikTok authorization URL. Your Client Secret is never requested here.</p>
+  <label for="clientKey"><strong>TikTok Client Key</strong></label>
+  <input id="clientKey" autocomplete="off" placeholder="Paste Client Key here">
+  <div class="note">Requested scopes: <code>user.info.basic,video.publish</code><br>Redirect URI: <code>https://kenantahu-code.github.io/after-office-media/tiktok-callback.html</code></div>
+  <button id="go">Continue with TikTok</button>
+  <script>
+    document.getElementById('go').addEventListener('click', () => {
+      const clientKey = document.getElementById('clientKey').value.trim();
+      if (!clientKey) { alert('Paste your TikTok Client Key first.'); return; }
+      const bytes = new Uint8Array(24);
+      crypto.getRandomValues(bytes);
+      const state = Array.from(bytes, b => b.toString(16).padStart(2,'0')).join('');
+      sessionStorage.setItem('ao_tiktok_oauth_state', state);
+      const params = new URLSearchParams({
+        client_key: clientKey,
+        response_type: 'code',
+        scope: 'user.info.basic,video.publish',
+        redirect_uri: 'https://kenantahu-code.github.io/after-office-media/tiktok-callback.html',
+        state,
+        disable_auto_auth: '1'
+      });
+      location.href = 'https://www.tiktok.com/v2/auth/authorize/?' + params.toString();
+    });
+  </script>
+</body>
+</html>
