@@ -1,1 +1,51 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>After Office TikTok Callback</title></head><body style="font-family:Arial,sans-serif;max-width:720px;margin:40px auto;padding:0 20px"><h1>TikTok authorization received</h1><p>This page is used only as the OAuth redirect endpoint for the internal After Office Publisher.</p><p>If TikTok redirected you here, copy the full URL from your browser address bar and return to the setup flow.</p></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>After Office TikTok Callback</title>
+  <style>
+    body{font-family:Arial,sans-serif;max-width:760px;margin:40px auto;padding:0 20px;color:#171717}
+    .box{background:#f5f5f5;padding:16px;border-radius:10px;margin:14px 0}
+    code{word-break:break-all}
+    button{font-size:15px;padding:10px 14px;border-radius:8px;border:0;background:#111;color:#fff;cursor:pointer}
+    .ok{color:#087a32}.bad{color:#b00020}
+  </style>
+</head>
+<body>
+  <h1>TikTok authorization callback</h1>
+  <div id="result"></div>
+  <script>
+    const p = new URLSearchParams(location.search);
+    const code = p.get('code');
+    const state = p.get('state');
+    const scopes = p.get('scopes');
+    const error = p.get('error');
+    const errorDescription = p.get('error_description');
+    const expectedState = sessionStorage.getItem('ao_tiktok_oauth_state');
+    const result = document.getElementById('result');
+
+    if (error) {
+      result.innerHTML = `<p class="bad"><strong>Authorization failed.</strong></p><div class="box"><div>Error: <code>${error}</code></div><div>${errorDescription || ''}</div></div>`;
+    } else if (!code) {
+      result.innerHTML = '<p class="bad"><strong>No authorization code was returned.</strong></p>';
+    } else if (!expectedState || state !== expectedState) {
+      result.innerHTML = '<p class="bad"><strong>State validation failed.</strong> Start the authorization again from the After Office auth helper in the same browser tab.</p>';
+    } else {
+      result.innerHTML = `
+        <p class="ok"><strong>Authorization successful.</strong></p>
+        <div class="box">
+          <div><strong>Granted scopes</strong><br><code>${scopes || ''}</code></div>
+          <br>
+          <div><strong>Authorization code</strong><br><code id="codeValue">${code}</code></div>
+        </div>
+        <button id="copy">Copy authorization code</button>
+        <p>This code is short-lived and one-time use. Do not post it publicly.</p>`;
+      document.getElementById('copy').addEventListener('click', async () => {
+        await navigator.clipboard.writeText(code);
+        document.getElementById('copy').textContent = 'Copied';
+      });
+    }
+  </script>
+</body>
+</html>
