@@ -196,7 +196,7 @@ async function handleCreator(req, res) {
     connected: true,
     creator_username: creator.creator_username,
     creator_nickname: creator.creator_nickname,
-    privacy_level_options: privacy.length ? privacy : ['SELF_ONLY'],
+    privacy_level_options: privacy,
     comment_disabled: Boolean(creator.comment_disabled),
     environment: ENVIRONMENT,
   });
@@ -224,7 +224,9 @@ async function handlePublish(req, res) {
   try { validateMedia(mediaUrls); } catch (e) { return json(res, 400, { error: e.message }); }
 
   const creator = await queryCreator(session.access_token);
-  const privacy = String(body.privacy_level || 'SELF_ONLY');
+  const privacy = String(body.privacy_level || '');
+  if (!privacy) return json(res, 400, { error: 'Select a privacy option before publishing.' });
+  if (body.brand_content_toggle === true && privacy === 'SELF_ONLY') return json(res, 400, { error: 'Branded content visibility cannot be private.' });
   const options = Array.isArray(creator.privacy_level_options) ? creator.privacy_level_options : [];
   if (!options.includes(privacy)) return json(res, 400, { error: `Privacy option is not available for this creator: ${privacy}` });
   if (ENVIRONMENT !== 'production' && privacy !== 'SELF_ONLY') {
