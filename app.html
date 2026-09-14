@@ -50,7 +50,7 @@
       <div class="row">
         <div>
           <label for="privacy">Privacy</label>
-          <select id="privacy"><option value="SELF_ONLY">Only you</option></select>
+          <select id="privacy"><option value="">Select privacy</option></select>
         </div>
         <div>
           <label for="cover">Cover image</label>
@@ -58,10 +58,14 @@
         </div>
       </div>
       <div class="checks">
-        <label class="check"><input id="allowComments" type="checkbox" checked><span>Allow comments on this post</span></label>
+        <label class="check"><input id="allowComments" type="checkbox"><span>Allow comments on this post</span></label>
         <label class="check"><input id="autoMusic" type="checkbox" checked><span>Automatically add recommended music when TikTok supports it</span></label>
-        <label class="check"><input id="brandContent" type="checkbox"><span>This post contains branded content</span></label>
-        <label class="check"><input id="brandOrganic" type="checkbox"><span>This post promotes my own brand, product, or service</span></label>
+        <label class="check"><input id="commercial" type="checkbox"><span>Disclose commercial content</span></label>
+        <div id="disclosures" hidden>
+          <label class="check"><input id="brandContent" type="checkbox"><span>Branded content — promoting another brand or third party</span></label>
+          <label class="check"><input id="brandOrganic" type="checkbox"><span>Your brand — promoting my own brand, product, or service</span></label>
+          <p id="disclosureHint" class="tiny"></p>
+        </div>
         <label class="check"><input id="aigc" type="checkbox"><span>This content is AI-generated or significantly AI-edited</span></label>
       </div>
     </section>
@@ -82,6 +86,8 @@
       <h2>4. Final approval</h2>
       <p>Confirm the account, media, caption, privacy, interaction controls, music setting, and disclosures above before publishing.</p>
       <label class="check" style="margin:18px 0"><input id="consent" type="checkbox"><span><strong>I reviewed this post and explicitly approve publishing it to the connected TikTok account.</strong></span></label>
+      <p class="tiny">By posting, you agree to TikTok's <a href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en" target="_blank" rel="noopener">Music Usage Confirmation</a><span id="brandedPolicy" hidden> and <a href="https://www.tiktok.com/legal/page/global/bc-policy/en" target="_blank" rel="noopener">Branded Content Policy</a></span>.</p>
+      <p class="tiny">After publishing, processing can take a few minutes before the post appears on your profile.</p>
       <button id="publish" disabled>Publish to TikTok</button>
       <button id="logout" class="secondary" type="button">Disconnect</button>
       <div id="status" class="status" style="margin-top:16px">Waiting for creator connection and explicit approval.</div>
@@ -103,20 +109,59 @@ const statusEl = document.getElementById('status');
 const publishBtn = document.getElementById('publish');
 const consentEl = document.getElementById('consent');
 let creator = null;
+let busy = false;
+const privacyEl = document.getElementById('privacy');
+const commercialEl = document.getElementById('commercial');
+const brandedEl = document.getElementById('brandContent');
+const organicEl = document.getElementById('brandOrganic');
 
 mediaEl.value = sampleMedia.join('\n');
 
 function mediaUrls(){ return mediaEl.value.split('\n').map(s=>s.trim()).filter(Boolean); }
 function renderMedia(){
   const urls = mediaUrls();
-  previewEl.innerHTML = urls.map((u,i)=>`<img src="${u.replace(/"/g,'&quot;')}" alt="Slide ${i+1}">`).join('');
-  coverEl.innerHTML = urls.map((_,i)=>`<option value="${i}">Slide ${i+1}</option>`).join('');
+  previewEl.replaceChildren(...urls.map((url,i)=>{
+    const img = document.createElement('img');
+    try { if (new URL(url).protocol === 'https:') img.src = url; } catch {}
+    img.alt = 'Slide ' + (i+1);
+    return img;
+  }));
+  coverEl.replaceChildren(...urls.map((_,i)=>new Option('Slide '+(i+1), String(i))));
 }
 function setStatus(text, kind=''){
   statusEl.textContent = text;
   statusEl.className = `status ${kind}`.trim();
 }
-function updatePublishState(){ publishBtn.disabled = !(creator && consentEl.checked); }
+function updatePublishState(){
+  const disclosureValid = !commercialEl.checked || (brandedEl.checked || organicEl.checked);
+  publishBtn.disabled = busy || !(creator && privacyEl.value && consentEl.checked && disclosureValid);
+}
+function updateDisclosure(){
+  document.getElementById('disclosures').hidden = !commercialEl.checked;
+  if (!commercialEl.checked) { brandedEl.checked = false; organicEl.checked = false; }
+  const privatePost = privacyEl.value === 'SELF_ONLY';
+  if (privatePost) brandedEl.checked = false;
+  brandedEl.disabled = privatePost;
+  for (const option of privacyEl.options) {
+    if (option.value === 'SELF_ONLY') option.disabled = brandedEl.checked;
+  }
+  const hints = [];
+  if (privatePost) hints.push('Branded content visibility cannot be private.');
+  if (commercialEl.checked && !brandedEl.checked && !organicEl.checked) hints.push('Choose your brand, a third party, or both to continue.');
+  if (brandedEl.checked) hints.push('Your photo will be labeled as Paid partnership.');
+  else if (organicEl.checked) hints.push('Your photo will be labeled as Promotional content.');
+  document.getElementById('disclosureHint').textContent = hints.join(' ');
+  document.getElementById('brandedPolicy').hidden = !brandedEl.checked;
+}
+document.querySelectorAll('input, textarea, select').forEach(el=>{
+  if (el === consentEl) return;
+  const event = el.matches('input[type="checkbox"], select') ? 'change' : 'input';
+  el.addEventListener(event, ()=>{
+    consentEl.checked = false;
+    updateDisclosure();
+    updatePublishState();
+  });
+});
 mediaEl.addEventListener('input', renderMedia);
 consentEl.addEventListener('change', updatePublishState);
 renderMedia();
@@ -129,16 +174,30 @@ async function loadCreator(){
     if(!r.ok) throw new Error(data.error || 'Could not load creator');
     creator = data;
     const username = data.creator_username ? '@'+data.creator_username : 'Connected TikTok account';
-    document.getElementById('accountArea').innerHTML = `<div><strong>${data.creator_nickname || username}</strong><div class="tiny">${username} · ${data.environment} mode</div></div><span class="badge">Connected</span>`;
+    const identity = document.createElement('div');
+    const name = document.createElement('strong');
+    name.textContent = data.creator_nickname || username;
+    const detail = document.createElement('div');
+    detail.className = 'tiny';
+    detail.textContent = username + ' · ' + data.environment + ' mode';
+    identity.append(name, detail);
+    const badge = document.createElement('span');
+    badge.className = 'badge';
+    badge.textContent = 'Connected';
+    document.getElementById('accountArea').replaceChildren(identity, badge);
     document.getElementById('connectTop').textContent = 'TikTok connected';
     document.getElementById('connectTop').classList.add('secondary');
     const privacy = document.getElementById('privacy');
-    privacy.innerHTML = (data.privacy_level_options || ['SELF_ONLY']).map(p=>`<option value="${p}">${p==='PUBLIC_TO_EVERYONE'?'Everyone':p==='MUTUAL_FOLLOW_FRIENDS'?'Friends':'Only you'}</option>`).join('');
+    const labels = {PUBLIC_TO_EVERYONE:'Everyone', MUTUAL_FOLLOW_FRIENDS:'Friends', FOLLOWER_OF_CREATOR:'Followers', SELF_ONLY:'Only you'};
+    privacy.replaceChildren(new Option('Select privacy',''), ...(data.privacy_level_options || []).map(p=>new Option(labels[p] || p,p)));
+    privacy.value = '';
     const allow = document.getElementById('allowComments');
-    if(data.comment_disabled){ allow.checked=false; allow.disabled=true; }
+    allow.checked = false;
+    allow.disabled = Boolean(data.comment_disabled);
+    updateDisclosure();
     setStatus('Creator permissions loaded. Review the post and check the approval box.');
     updatePublishState();
-  }catch(e){ setStatus(e.message,'bad'); }
+  }catch(e){ creator=null; updatePublishState(); setStatus(e.message,'bad'); }
 }
 
 async function pollStatus(publishId){
@@ -156,7 +215,13 @@ async function pollStatus(publishId){
 }
 
 document.getElementById('publish').addEventListener('click', async()=>{
-  publishBtn.disabled = true;
+  if (publishBtn.disabled || busy) return;
+  busy = true;
+  updatePublishState();
+  document.querySelectorAll('input, textarea, select, #logout').forEach(el=>{
+    el.dataset.wasDisabled = String(el.disabled);
+    el.disabled = true;
+  });
   setStatus('Submitting the approved post to TikTok…');
   try{
     const payload = {
@@ -178,7 +243,14 @@ document.getElementById('publish').addEventListener('click', async()=>{
     setStatus(`TikTok accepted the post.\nPublish ID: ${data.publish_id}\nChecking final status…`);
     await pollStatus(data.publish_id);
   }catch(e){ setStatus(e.message,'bad'); }
-  finally{ updatePublishState(); }
+  finally{
+    busy = false;
+    consentEl.checked = false;
+    document.querySelectorAll('input, textarea, select, #logout').forEach(el=>{
+      el.disabled = el.dataset.wasDisabled === 'true';
+    });
+    updatePublishState();
+  }
 });
 
 document.getElementById('logout').addEventListener('click',()=>{ location.href='/api/tiktok/logout'; });
